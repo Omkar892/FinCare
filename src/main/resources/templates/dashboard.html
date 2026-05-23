@@ -5,7 +5,7 @@
     <title>Dashboard</title>
 
     <link rel="stylesheet"
-     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -13,261 +13,437 @@
 <body class="bg-light">
 
 <div class="container mt-4">
-<!-- 🔥 ALERT SECTION -->
-<div th:if="${alerts != null}">
-    
-    <div th:each="a : ${alerts}">
 
-        <div th:class="'alert mt-2 ' + 
-            (${a.contains('Exceeded')} ? 'alert-danger' : 'alert-warning')">
+    <!-- ALERT SECTION -->
+    <div th:if="${alerts != null}">
 
-            <span th:text="${a}"></span>
+        <div th:each="a : ${alerts}">
+
+            <div th:class="'alert mt-2 ' +
+                (${a.contains('Exceeded')} ? 'alert-danger' : 'alert-warning')">
+
+                <span th:text="${a}"></span>
+
+            </div>
 
         </div>
 
     </div>
 
-</div>
-    <!-- 🔹 HEADER -->
+    <!-- HEADER -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4>Welcome, <span th:text="${#authentication.name}"></span> 👋</h4>
+        <h4>
+            Welcome,
+            <span th:text="${#authentication.name}"></span> 👋
+        </h4>
+
         <a href="/logout" class="btn btn-danger">Logout</a>
     </div>
 
-    <!-- 🔹 ACTION BUTTONS -->
+    <!-- ACTION BUTTONS -->
     <div class="d-flex justify-content-between mb-4">
-        <a href="/transactions/add" class="btn btn-success">➕ Add Transaction</a>
-        <a href="/goals/add" class="btn btn-primary">🎯 Add Goal</a>
-        <a href="/budget/set" class="btn btn-warning">💰 Add Budget</a>
+
+        <a href="/transactions/add" class="btn btn-success">
+            ➕ Add Transaction
+        </a>
+
+        <a href="/goals/add" class="btn btn-primary">
+            🎯 Add Goal
+        </a>
+
+        <a href="/budget/set" class="btn btn-warning">
+            💰 Add Budget
+        </a>
+
     </div>
 
-    <!-- 🔹 FILTER -->
+    <!-- FILTER -->
     <form method="get" action="/dashboard" class="mb-4">
-        <input type="month" name="month" class="form-control w-25 d-inline">
-        <button class="btn btn-primary">Filter</button>
+
+        <input type="month"
+               name="month"
+               class="form-control w-25 d-inline">
+
+        <button class="btn btn-primary">
+            Filter
+        </button>
+
     </form>
 
-    <!-- 🔹 SUMMARY -->
+    <!-- SUMMARY -->
     <div class="row text-center mb-4">
 
         <div class="col-md-4">
+
             <div class="card p-3 shadow">
+
                 <h5>Income</h5>
-                <h4 class="text-success">₹ <span th:text="${income}">0</span></h4>
+
+                <h4 class="text-success">
+                    ₹ <span th:text="${income} ?: 0">0</span>
+                </h4>
+
             </div>
+
         </div>
 
         <div class="col-md-4">
+
             <div class="card p-3 shadow">
+
                 <h5>Expense</h5>
-                <h4 class="text-danger">₹ <span th:text="${expense}">0</span></h4>
+
+                <h4 class="text-danger">
+                    ₹ <span th:text="${expense} ?: 0">0</span>
+                </h4>
+
             </div>
+
         </div>
 
         <div class="col-md-4">
+
             <div class="card p-3 shadow">
+
                 <h5>Remaining</h5>
-                <h4 class="text-primary">₹ <span th:text="${remaining}">0</span></h4>
+
+                <h4 class="text-primary">
+                    ₹ <span th:text="${remaining} ?: 0">0</span>
+                </h4>
+
             </div>
+
         </div>
 
     </div>
 
-    <!-- 🔹 CHARTS -->
+    <!-- CHARTS -->
     <div class="row">
 
         <div class="col-md-6 mb-4">
+
             <div class="card p-3 shadow">
-                <h6 class="text-center">Income vs Expense</h6>
+
+                <h6 class="text-center">
+                    Income vs Expense
+                </h6>
+
                 <canvas id="financeChart"></canvas>
+
             </div>
+
         </div>
 
         <div class="col-md-6 mb-4">
+
             <div class="card p-3 shadow">
-                <h6 class="text-center">Category Wise</h6>
+
+                <h6 class="text-center">
+                    Category Wise
+                </h6>
+
                 <canvas id="pieChart"></canvas>
+
             </div>
+
         </div>
 
         <div class="col-md-12 mb-4">
+
             <div class="card p-3 shadow">
-                <h6 class="text-center">Monthly Expense</h6>
+
+                <h6 class="text-center">
+                    Monthly Expense
+                </h6>
+
                 <canvas id="monthlyChart"></canvas>
+
             </div>
+
         </div>
 
     </div>
 
-    <!-- 🔥 BUDGET PROGRESS -->
+    <!-- BUDGET STATUS -->
     <h4 class="mt-4">📊 Budget Status</h4>
+
+    <div th:if="${budgetProgress == null || #lists.isEmpty(budgetProgress)}">
+
+        <div class="alert alert-info">
+            No budget status available
+        </div>
+
+    </div>
 
     <div th:each="b : ${budgetProgress}" class="card p-3 mb-3 shadow-sm">
 
         <div class="d-flex justify-content-between">
+
             <strong th:text="${b[0]}">Category</strong>
 
             <span>
                 ₹ <span th:text="${b[1]}">0</span> /
                 ₹ <span th:text="${b[2]}">0</span>
             </span>
+
         </div>
 
         <div class="progress mt-2">
+
             <div class="progress-bar"
-                 th:classappend="${b[3] > 100} ? 'bg-danger' : (${b[3] > 80} ? 'bg-warning' : 'bg-success')"
+
+                 th:classappend="${b[3] > 100} ? 'bg-danger' :
+                                 (${b[3] > 80} ? 'bg-warning' : 'bg-success')"
+
                  th:style="'width:' + ${b[3]} + '%'">
 
                 <span th:text="${#numbers.formatDecimal(b[3],0,0)} + '%'"></span>
 
             </div>
+
+        </div>
+
+    </div>
+
+    <!-- BUDGET ALERTS -->
+    <h4 class="mt-4">🚨 Budget Alerts</h4>
+
+    <div th:if="${budgetCategories == null || #lists.isEmpty(budgetCategories)}">
+
+        <div class="alert alert-info">
+            No budget alerts available
         </div>
 
     </div>
 
-    <!-- 🔴 ALERTS -->
-<h4 class="mt-4">🚨 Budget Alerts</h4>
+    <div th:if="${budgetCategories != null && !#lists.isEmpty(budgetCategories)}">
 
-<div th:each="i : ${#numbers.sequence(0, budgetCategories.size() - 1)}"
-     class="card p-3 mb-3 shadow-sm">
+        <div th:each="i : ${#numbers.sequence(0, budgetCategories.size() - 1)}"
+             class="card p-3 mb-3 shadow-sm">
 
-    <div class="d-flex justify-content-between">
-        <strong th:text="${budgetCategories[i]}"></strong>
+            <div class="d-flex justify-content-between">
 
-        <span>
-            ₹ <span th:text="${spentList[i]}"></span> /
-            ₹ <span th:text="${limitList[i]}"></span>
-        </span>
-    </div>
+                <strong th:text="${budgetCategories[i]}"></strong>
 
-    <div class="progress mt-2">
-        <div class="progress-bar"
-             th:classappend="${percentList[i] > 100} ? 'bg-danger' :
-                             (${percentList[i] > 80} ? 'bg-warning' : 'bg-success')"
-             th:style="'width:' + ${percentList[i]} + '%'">
+                <span>
+                    ₹
+                    <span th:text="${spentList.size() > i ? spentList[i] : 0}"></span>
+                    /
+                    ₹
+                    <span th:text="${limitList.size() > i ? limitList[i] : 0}"></span>
+                </span>
 
-            <span th:text="${#numbers.formatDecimal(percentList[i],0,0)} + '%'"></span>
+            </div>
+
+            <div class="progress mt-2">
+
+                <div class="progress-bar"
+
+                     th:classappend="${percentList.size() > i && percentList[i] > 100}
+                     ? 'bg-danger'
+                     : (${percentList.size() > i && percentList[i] > 80}
+                     ? 'bg-warning'
+                     : 'bg-success')"
+
+                     th:style="'width:' + ${(percentList.size() > i ? percentList[i] : 0)} + '%'">
+
+                    <span th:text="${#numbers.formatDecimal((percentList.size() > i ? percentList[i] : 0),0,0)} + '%'"></span>
+
+                </div>
+
+            </div>
 
         </div>
+
     </div>
 
-</div>
-</div>
-
-    <!-- 🔹 GOALS -->
+    <!-- GOALS -->
     <h4 class="mt-4">🎯 Goals</h4>
+
+    <div th:if="${goals == null || #lists.isEmpty(goals)}">
+
+        <div class="alert alert-info">
+            No goals added
+        </div>
+
+    </div>
 
     <div th:each="g : ${goals}" class="card p-3 mb-3 shadow-sm">
 
         <div class="d-flex justify-content-between">
+
             <strong th:text="${g.name}"></strong>
 
             <span>
                 ₹ <span th:text="${g.savedAmount}">0</span> /
                 ₹ <span th:text="${g.targetAmount}">0</span>
             </span>
+
         </div>
 
         <div class="progress mt-2">
-            <div class="progress-bar bg-success"
-                 th:style="'width:' + (${g.targetAmount > 0 ? (g.savedAmount * 100 / g.targetAmount) : 0}) + '%'">
 
-                <span th:text="${g.targetAmount > 0 ? (g.savedAmount * 100 / g.targetAmount) : 0} + '%'"></span>
+            <div class="progress-bar bg-success"
+
+                 th:style="'width:' +
+                 (${g.targetAmount > 0
+                 ? (g.savedAmount * 100 / g.targetAmount)
+                 : 0}) + '%'">
+
+                <span th:text="${g.targetAmount > 0
+                ? (g.savedAmount * 100 / g.targetAmount)
+                : 0} + '%'"></span>
 
             </div>
+
         </div>
 
     </div>
 
-    <!-- 🔹 TRANSACTIONS -->
+    <!-- TRANSACTIONS -->
     <h4 class="mt-4">📋 Recent Transactions</h4>
 
     <table class="table table-bordered">
+
         <thead>
-            <tr>
-                <th>Date</th>
-                <th>Amount</th>
-                <th>Type</th>
-                <th>Category</th>
-            </tr>
+
+        <tr>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>Type</th>
+            <th>Category</th>
+        </tr>
+
         </thead>
 
         <tbody>
-            <tr th:each="t : ${transactions}">
-                <td th:text="${t.date}"></td>
-                <td th:text="${t.amount}"></td>
-                <td th:text="${t.type}"></td>
-                <td th:text="${t.category.name}"></td>
-            </tr>
+
+        <tr th:if="${transactions == null || #lists.isEmpty(transactions)}">
+
+            <td colspan="4" class="text-center">
+                No transactions found
+            </td>
+
+        </tr>
+
+        <tr th:each="t : ${transactions}">
+
+            <td th:text="${t.date}"></td>
+
+            <td th:text="${t.amount}"></td>
+
+            <td th:text="${t.type}"></td>
+
+            <td th:text="${t.category.name}"></td>
+
+        </tr>
+
         </tbody>
+
     </table>
 
 </div>
 
-<!-- 🔥 CHART SCRIPT -->
+<!-- CHART SCRIPT -->
 <script th:inline="javascript">
 
-let income = /*[[${income}]]*/ 0;
-let expense = /*[[${expense}]]*/ 0;
+    let income = /*[[${income}]]*/ 0;
+    let expense = /*[[${expense}]]*/ 0;
 
-let categories = /*[[${categories}]]*/ [];
-let amounts = /*[[${amounts}]]*/ [];
+    let categories = /*[[${categories}]]*/ [];
+    let amounts = /*[[${amounts}]]*/ [];
 
-let months = /*[[${months}]]*/ [];
-let monthlyAmounts = /*[[${monthlyAmounts}]]*/ [];
+    let months = /*[[${months}]]*/ [];
+    let monthlyAmounts = /*[[${monthlyAmounts}]]*/ [];
 
-// BAR
-new Chart(document.getElementById('financeChart'), {
-    type: 'bar',
-    data: {
-        labels: ['Income', 'Expense'],
-        datasets: [{
-            label: 'Amount',
-            data: [income, expense],
-            backgroundColor: ['green', 'red']
-        }]
+    // BAR CHART
+    new Chart(document.getElementById('financeChart'), {
+
+        type: 'bar',
+
+        data: {
+
+            labels: ['Income', 'Expense'],
+
+            datasets: [{
+
+                label: 'Amount',
+
+                data: [income, expense],
+
+                backgroundColor: ['green', 'red']
+
+            }]
+
+        }
+
+    });
+
+    // PIE CHART
+    if (!categories.length) {
+
+        categories = ["No Data"];
+        amounts = [1];
+
     }
-});
 
-// PIE
-if (!categories.length) {
-    categories = ["No Data"];
-    amounts = [1];
-}
+    new Chart(document.getElementById('pieChart'), {
 
-new Chart(document.getElementById('pieChart'), {
-    type: 'pie',
-    data: {
-        labels: categories,
-        datasets: [{
-            data: amounts
-        }]
+        type: 'pie',
+
+        data: {
+
+            labels: categories,
+
+            datasets: [{
+
+                data: amounts
+
+            }]
+
+        }
+
+    });
+
+    // LINE CHART
+    if (!months.length) {
+
+        months = ["No Data"];
+        monthlyAmounts = [0];
+
     }
-});
 
-// LINE
-if (!months.length) {
-    months = ["No Data"];
-    monthlyAmounts = [0];
-}
+    new Chart(document.getElementById('monthlyChart'), {
 
-new Chart(document.getElementById('monthlyChart'), {
-    type: 'line',
-    data: {
-        labels: months,
-        datasets: [{
-            label: 'Monthly Expense',
-            data: monthlyAmounts,
-            borderColor: 'blue',
-            fill: false
-        }]
+        type: 'line',
+
+        data: {
+
+            labels: months,
+
+            datasets: [{
+
+                label: 'Monthly Expense',
+
+                data: monthlyAmounts,
+
+                borderColor: 'blue',
+
+                fill: false
+
+            }]
+
+        }
+
+    });
+
+    let alerts = /*[[${alerts}]]*/ [];
+
+    if (alerts.length > 0) {
+
+        alert(alerts.join("\n"));
+
     }
-});
-let alerts = /*[[${alerts}]]*/ [];
-
-if (alerts.length > 0) {
-    alert(alerts.join("\n"));
-}
 
 </script>
 
